@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers\Dashboard;
+
+use App\Models\Meter;
+use App\Models\usage;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class DashboardController extends Controller
+{
+    /**
+     * Fetch usage data based on the provided time unit.
+     *
+     * @param  string  $unit
+     * @return \Illuminate\Http\Response
+     */
+    protected $meterinfo;
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $meter = Meter::where('id', Auth::user()->F_MID)->first();
+            $rate = DB::table('rate')->where('id', $meter->rate_id)->first();
+            $this->meterinfo = [
+                'meter' => $meter,
+                'rate' => $rate,
+            ];
+            return $next($request);
+        });
+    }
+
+    public function index()
+    {
+        $meterinfo = $this->meterinfo; // Add this line to define $meterinfo
+        return view('dashboard', compact('meterinfo'));
+    }
+
+    public function fetch_usage_data($unit)
+    {
+        $tableNames = [
+            'min' => 'electric_usage',
+            'hour' => '1min_usage',
+            'day' => '1hour_usage',
+            'month' => '1day_usage',
+            'year' => '1month_usage',
+        ];
+
+        if (!array_key_exists($unit, $tableNames)) {
+            // Log an error message
+            error_log("Invalid unit value: $unit");
+            // Return an error response
+            return response()->json(['error' => 'Invalid unit value'], 400);
+        }
+
+        $usage = DB::table($tableNames[$unit])
+            ->where('meter_id', $this->meterinfo['meter']->id)
+            ->get()
+            ->toArray();
+
+        return response()->json($usage);
+    }
+
+
+    public function fetch_meter_bill()
+    {
+        $meterbill = DB::table('monthly_bill')->where('meter_id', $this->meterinfo['meter']->id)->get()->toArray();
+        // ddd($meterbill);
+        return response()->json($meterbill);
+    }
+    public function Consumption()
+    {
+        $Consumption = DB::table('meter')->where('id', $this->meterinfo['meter']->id)->orderBy('id', 'desc')->first();
+        return response()->json($Consumption);
+    }
+}

@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: Glacial Indifference;
+    src: url("/public/fonts/GlacialIndifference-Regular.otf") format("opentype");
+  }
+
+@font-face {
+    font-family: Glacial;
+    src: url("/public/fonts/GlacialIndifference-Bold.otf") format("opentype");
+}
+
+font-face {
+    font-family: OpenSans;
+    src: url("/public/fonts/OpenSans-VariableFont_wdth-wght.ttf") format("truetype");
+}
+
+font-face {
+    font-family: Lato;
+    src: url("/public/fonts/Lato-Regular.ttf") format("truetype");
+}
